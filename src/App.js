@@ -1,52 +1,70 @@
 import React, { useState } from 'react';
-// import Accordion from './components/Accordion';
-// import Search from './components/Search';
+import Accordion from './components/Accordion';
+import Search from './components/Search';
 import Dropdown from './components/Dropdown';
+import Translate from './components/Translate'
+import Route from './components/Route';
+import Header from './components/Header';
+import LearnWrite from './components/LearnWrite';
 
-// const items = [
-//   {
-//     title: 'What is React?',
-//     content: 'React is a front-end Javascript Framework'
-//   },
-//   {
-//     title: 'What use React?',
-//     content: 'React is a favorite JS library among engineers'
-//   },
-//   {
-//     title: 'How do you use React?',
-//     content: 'You use React by  creating components'
-//   }
-// ]
-
-const options = [
+const items = [
   {
-    label: "The color red",
-    value: "red",
+    title: 'What is React?',
+    content: 'React is a front-end Javascript Framework'
   },
   {
-    label: "The color green",
-    value: "green",
+    title: 'What use React?',
+    content: 'React is a favorite JS library among engineers'
   },
   {
-    label: "The color blue",
-    value: "blue",
+    title: 'How do you use React?',
+    content: 'You use React by  creating components'
   }
 ]
+const options = [
+  {
+    label: 'The color red',
+    value: 'red',
+  },
+  {
+    label: 'The color green',
+    value: 'green'
+  }]
+
+// const dummyData = [
+//   { title: "NES" },
+//   { title: "Super Nintendo" },
+//   { title: "Nintendo 64" },
+//   { title: "Game Cube" }
+// ]
 
 
 export default () => {
+  const [selected, setSelected] = useState(options[0])
 
-  const [selected, setSelected] = useState(options[0]);
-  const [showDropdown, setShowDropdown] = useState(true);
   return (
     <div>
-      <button onClick={() => setShowDropdown(!showDropdown)}>Toggle Dropdown</button>
-      {showDropdown ?
+      <Header />
+      <Route path="/" >
+        <Accordion items={items} />
+      </Route>
+
+      <Route path="/list" >
+        <Search />
+      </Route>
+      <Route path="/dropdown" >
         <Dropdown
+          label="Select a color"
           options={options}
           selected={selected}
-          onSelectedChange={setSelected}
-        /> : null}
+          onSelectedChange={setSelected} />
+      </Route>
+      <Route path="/translate">
+        <Translate />
+      </Route>
+      <Route path="/learnwrite">
+        <LearnWrite />
+      </Route>
     </div >
   )
 }

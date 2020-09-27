@@ -1,0 +1,20 @@
+html,body {
+  background-color: #f1faee; 
+}
+
+.sentences {
+  position: relative;
+  height: 50vh;
+}
+.sentence{
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #a8dadc;
+}
+
+.userInput{
+  position: relative;
+  /* top: 0; */
+  color: #457b9d;
+}
