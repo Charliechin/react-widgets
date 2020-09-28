@@ -13,8 +13,26 @@ html,body {
   color: #a8dadc;
 }
 
+.wiki-title{color:#e63946; margin-bottom: 1em;}
+
 .userInput{
   position: relative;
   /* top: 0; */
   color: #457b9d;
+}
+
+
+.shake {    
+  animation: shake 0.1s ease-in-out 0.1s 2 alternate;
+}
+
+@keyframes shake {
+from {
+  -webkit-transform: rotate(3deg);
+}
+to {
+ -webkit-transform-origin:left center;
+ -webkit-transform: rotate(5deg);
+}
+
 }

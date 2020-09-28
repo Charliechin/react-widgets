@@ -1,26 +1,101 @@
 import React, { useEffect, useState } from 'react';
 import './learnWrite.css'
-
+import axios from 'axios';
 
 const LearnWrite = () => {
-  const sentence = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.Etiam at mauris ante.Cras enim ipsum, volutpat in augue non, imperdiet dignissim urna.Aenean semper sit amet enim laoreet maximus.Ut suscipit quis tortor vitae congue.Curabitur volutpat, diam id pharetra vestibulum, justo erat faucibus erat, et sodales nunc orci finibus sem.Duis id neque tempus, sagittis mi ac, aliquet mauris.Phasellus quis ante libero.Pellentesque venenatis, justo sed efficitur varius, augue lectus pretium quam, nec tempus ligula magna a est.Proin lectus lectus, sagittis vitae dignissim a, ullamcorper tempus quam.In vulputate, sem id venenatis ultricies, risus arcu convallis lectus, eget gravida odio mi quis purus.Donec eget accumsan ipsum.Duis tristique sit amet massa eu aliquet.Quisque rutrum sapien vel purus rutrum, sit amet dignissim enim volutpat.Praesent neque urna, aliquam non blandit tristique, lacinia eu erat.Donec non metus eu ex tristique pulvinar.Nullam et dignissim felis.';
+
+  const [wikiArticle, setWikiArticle] = useState('Fetching random article...');
+  const [wikiTitle, setWikiTitle] = useState('Loading Wikipedia Article...')
 
   const [currentInput, setCurrentInput] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [matchedInput, setMatchedInput] = useState('');
-  const [score, setScore] = useState(100);
+  const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
 
 
-  const inputMatch = () => {
-    if (currentInput === "") return;
-    if (currentInput.charAt(currentInput.length - 1) === sentence[currentIndex]) {
-      return true;
+  const [mistake, setMistake] = useState(false);
+
+  const handleInput = (val) => {
+    const lastInputLetter = val.charAt(val.length - 1);
+
+    if (lastInputLetter === wikiArticle[currentIndex]) {
+      setCurrentInput(val);
+      setMatchedInput(input => input.concat(lastInputLetter));
+      setCurrentIndex(currentIndex + 1);
     } else {
-      return false;
+      setMistake(true);
+      setLives(lives - 1)
+
     }
   }
+
+  const searchWiki = async () => {
+    const { data } = await axios.get('https://en.wikipedia.org/w/api.php', {
+      params: {
+        action: 'query',
+        generator: 'random',
+        grnnamespace: 0,
+        origin: '*',
+        prop: 'extracts',
+        exchars: 500,
+        format: 'json'
+      }
+    });
+    const pageId = Object.keys(data.query.pages);
+    console.log(data.query)
+    const pageContent = data.query.pages[pageId].extract;
+    const wikiTitle = data.query.pages[pageId].title
+    const dataFormatted = pageContent.replace(/(<([^>]+)>)/gi, "");
+    setWikiTitle(wikiTitle);
+    setWikiArticle(dataFormatted);
+
+  }
+
+  useEffect(() => {
+    searchWiki();
+  }, [])
+
+  useEffect(() => {
+    console.log("Matched Input has changed");
+    setScore(score + 1);
+
+  }, [matchedInput])
+
+
+  useEffect(() => {
+    if (lives < 0) {
+      alert("Game Over!");
+      resetGame();
+    }
+
+    return () => {
+      setMistake(false)
+    }
+
+  }, [lives])
+
+
+
+
+  const resetGame = () => {
+    searchWiki();
+    setLives(3);
+    setCurrentIndex(0);
+    setCurrentInput('');
+    setMatchedInput('');
+    setScore(0);
+  }
+  // const inputMatch = () => {
+  //   if (currentInput === "") return;
+  //   if (currentInput.charAt(currentInput.length - 1) === sentence[currentIndex]) {
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // }
+
 
 
   // useEffect(() => {
@@ -35,52 +110,54 @@ const LearnWrite = () => {
   // }, [score])
 
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    if (inputMatch()) {
-      console.log("MATCH");
-      setCurrentIndex(currentIndex + 1);
-      setMatchedInput(input => input.concat(currentInput.charAt(currentInput.length - 1)))
-      setScore(score + 1)
-    } else {
-      setCurrentInput(matchedInput);
-      // setMatchedInput(input => input.concat(currentInput.charAt(currentInput.length - 1)))
-      console.log("DONT MATCH");
-    }
-
-
-    // const interval = setInterval(() => {
-    //   console.log('This will run every second!');
-    // }, 1000);
-    // return () => clearInterval(interval);
+  //   if (inputMatch()) {
+  //     console.log("MATCH");
+  //     setCurrentIndex(currentIndex + 1);
+  //     setMatchedInput(input => input.concat(currentInput.charAt(currentInput.length - 1)))
+  //     setScore(score + 1)
+  //   } else {
+  //     setCurrentIndex(currentIndex);
+  //     // setCurrentInput(matchedInput);
+  //     // setMatchedInput(input => input.concat(currentInput.charAt(currentInput.length - 1)))
+  //     console.log("DONT MATCH");
+  //   }
 
 
+  //   // const interval = setInterval(() => {
+  //   //   console.log('This will run every second!');
+  //   // }, 1000);
+  //   // return () => clearInterval(interval);
 
 
 
-  }, [currentInput])
+
+
+  // }, [currentInput])
 
   return (
     <div className="ui container">
+
+      <h3 className={`wiki-title ${mistake ? 'shake' : ""}`}> {wikiTitle}</h3>
+      {/* <h2 className="wiki-title">{wikiTitle}</h2> */}
+
+
       <div className="sentences">
-        <h3 className="sentence">{sentence}</h3>
-        <h3 className="userInput">{currentInput}</h3>
+        <h3 className="sentence">{wikiArticle}</h3>
+        <h3 className="userInput">{matchedInput}</h3>
       </div>
       <div className="ui form">
 
 
         <div className="field">
-          {/* <h2>Sentence: {sentence}</h2> */}
-          <hr />
-          {/* <p> Matched input: {matchedInput}</p>
-          <p>Current Index: {currentIndex}</p> */}
-
-          {/* <p>Last Input Letter: {currentInput.charAt(currentInput.length - 1)}</p> */}
-          <p>Char at Current Index: {sentence[currentIndex]}</p>
-          {/* <p> Matched input: {matchedInput}</p> */}
+          {/* <p>Char at Current Index: {wikiArticle[currentIndex]}</p>
+          <p>sentence Current Index: {currentIndex}</p> */}
           <hr />
           <p>Score: {score}</p>
           <p>Lives: {lives}</p>
+          <button onClick={searchWiki} class="ui inverted red button">Fetch new text</button>
+
         </div>
         <div className="field">
           <label>Write here:</label>
@@ -89,11 +166,8 @@ const LearnWrite = () => {
             className="input"
             value={currentInput}
             onChange={(e) => {
-              // console.log(e.target.value)
-              setCurrentInput(e.target.value)
+              handleInput(e.target.value);
             }}
-          // onKeyDown={(e) => { handleBackspace(e) }}
-
           />
         </div>
       </div>
